@@ -38,33 +38,14 @@ startBtn.onclick = () => {
 
 function startConnection(initiator, partnerMobile) {
   pc = new RTCPeerConnection({
-  iceServers: [
-      {
-        urls: "stun:stun.relay.metered.ca:80",
-      },
-      {
-        urls: "turn:global.relay.metered.ca:80",
-        username: "d458b83fc1fb121638d2e931",
-        credential: "Cp+XW22EpTwKDn4w",
-      },
-      {
-        urls: "turn:global.relay.metered.ca:80?transport=tcp",
-        username: "d458b83fc1fb121638d2e931",
-        credential: "Cp+XW22EpTwKDn4w",
-      },
-      {
-        urls: "turn:global.relay.metered.ca:443",
-        username: "d458b83fc1fb121638d2e931",
-        credential: "Cp+XW22EpTwKDn4w",
-      },
-      {
-        urls: "turns:global.relay.metered.ca:443?transport=tcp",
-        username: "d458b83fc1fb121638d2e931",
-        credential: "Cp+XW22EpTwKDn4w",
-      },
-  ],
-});
-  
+    iceServers: [
+      { urls: "stun:stun.relay.metered.ca:80" },
+      { urls: "turn:global.relay.metered.ca:80", username: "d458b83fc1fb121638d2e931", credential: "Cp+XW22EpTwKDn4w" },
+      { urls: "turn:global.relay.metered.ca:80?transport=tcp", username: "d458b83fc1fb121638d2e931", credential: "Cp+XW22EpTwKDn4w" },
+      { urls: "turn:global.relay.metered.ca:443", username: "d458b83fc1fb121638d2e931", credential: "Cp+XW22EpTwKDn4w" },
+      { urls: "turns:global.relay.metered.ca:443?transport=tcp", username: "d458b83fc1fb121638d2e931", credential: "Cp+XW22EpTwKDn4w" },
+    ],
+  });
   localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
   pc.getSenders().forEach(sender => {
@@ -87,9 +68,9 @@ function startConnection(initiator, partnerMobile) {
   };
 
   if (initiator) {
-    pc.createOffer().then(o => pc.setLocalDescription(o)).then(() => {
-      socket.emit('signal', { to: partnerId, data: { description: pc.localDescription } });
-    });
+    pc.createOffer()
+      .then(o => pc.setLocalDescription(o))
+      .then(() => socket.emit('signal', { to: partnerId, data: { description: pc.localDescription } }));
   }
 }
 
@@ -127,3 +108,28 @@ function cleanup() {
   remoteVideo.srcObject = null;
   partnerId = null;
 }
+
+// === Chat integration ===
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const chatMessages = document.getElementById('chatMessages');
+
+function appendMessage(text, cls) {
+  const div = document.createElement('div');
+  div.className = cls;
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+sendBtn.addEventListener('click', () => {
+  const msg = chatInput.value.trim();
+  if (!msg || !partnerId) return;
+  socket.emit('chat-message', msg);
+  appendMessage(msg, 'you');
+  chatInput.value = '';
+});
+
+socket.on('chat-message', ({ from, text }) => {
+  if (from === partnerId) appendMessage(text, 'partner');
+});
