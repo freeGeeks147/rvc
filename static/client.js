@@ -1,4 +1,5 @@
-const socket = io();
+const socket = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.hostname + ':8000/ws');
+
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const startBtn = document.getElementById('startBtn');
@@ -29,10 +30,40 @@ async function initMedia() {
 
 initMedia();
 
+socket.addEventListener('open', () => {
+  console.log('WebSocket connected');
+});
+
+socket.addEventListener('message', async event => {
+  const msg = JSON.parse(event.data);
+  if (msg.type === 'match') {
+    partnerId = msg.id;
+    partnerIsMobile = Boolean(msg.partnerMobile);
+    status.textContent = 'Partner found! Connecting...';
+    startConnection(msg.initiator, partnerIsMobile);
+  } else if (msg.type === 'signal') {
+    if (msg.from !== partnerId) return;
+    const data = msg.data;
+    if (data.description) {
+      await pc.setRemoteDescription(data.description);
+      if (data.description.type === 'offer') {
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.send(JSON.stringify({ type: 'signal', to: partnerId, data: { description: pc.localDescription } }));
+      }
+    } else if (data.candidate) {
+      try { await pc.addIceCandidate(data.candidate); } catch (e) { console.error(e); }
+    }
+  } else if (msg.type === 'partner-left') {
+    status.textContent = 'Partner disconnected.';
+    cleanup();
+  }
+});
+
 startBtn.onclick = () => {
-  socket.emit('leave');
+  socket.send(JSON.stringify({ type: 'leave' }));
   cleanup();
-  socket.emit('join', { mobile: isMobile });
+  socket.send(JSON.stringify({ type: 'join', mobile: isMobile }));
   status.textContent = 'Looking for a partner...';
 };
 
@@ -40,7 +71,6 @@ function startConnection(initiator, partnerMobile) {
   pc = new RTCPeerConnection({
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
-      // Public TURN for demo use only; replace with your own in production
       {
         urls: [
           'turn:openrelay.metered.ca:80',
@@ -58,13 +88,13 @@ function startConnection(initiator, partnerMobile) {
     if (sender.track && sender.track.kind === 'video') {
       const params = sender.getParameters();
       if (!params.encodings) params.encodings = [{}];
-      params.encodings[0].maxBitrate = partnerMobile ? 300_000 : 800_000;
+      params.encodings[0].maxBitrate = partnerMobile ? 300000 : 800000;
       sender.setParameters(params).catch(e => console.error('Failed to set bitrate', e));
     }
   });
 
   pc.onicecandidate = ({ candidate }) => {
-    if (candidate) socket.emit('signal', { to: partnerId, data: { candidate } });
+    if (candidate) socket.send(JSON.stringify({ type: 'signal', to: partnerId, data: { candidate } }));
   };
   pc.ontrack = ({ streams: [stream] }) => {
     remoteVideo.srcObject = stream;
@@ -75,36 +105,10 @@ function startConnection(initiator, partnerMobile) {
 
   if (initiator) {
     pc.createOffer().then(o => pc.setLocalDescription(o)).then(() => {
-      socket.emit('signal', { to: partnerId, data: { description: pc.localDescription } });
+      socket.send(JSON.stringify({ type: 'signal', to: partnerId, data: { description: pc.localDescription } }));
     });
   }
 }
-
-socket.on('match', ({ id, initiator, partnerMobile }) => {
-  partnerId = id;
-  partnerIsMobile = Boolean(partnerMobile);
-  status.textContent = 'Partner found! Connecting...';
-  startConnection(initiator, partnerIsMobile);
-});
-
-socket.on('signal', async ({ from, data }) => {
-  if (from !== partnerId) return;
-  if (data.description) {
-    await pc.setRemoteDescription(data.description);
-    if (data.description.type === 'offer') {
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit('signal', { to: partnerId, data: { description: pc.localDescription } });
-    }
-  } else if (data.candidate) {
-    try { await pc.addIceCandidate(data.candidate); } catch (e) { console.error(e); }
-  }
-});
-
-socket.on('partner-left', () => {
-  status.textContent = 'Partner disconnected.';
-  cleanup();
-});
 
 function cleanup() {
   if (pc) {
