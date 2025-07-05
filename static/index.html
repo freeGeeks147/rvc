@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Random Video Chat</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    video { width: 45%; max-width: 300px; background: #000; margin: 5px; }
+    #videos { display: flex; justify-content: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>Random Video Chat</h1>
+  <div id="videos">
+    <video id="localVideo" autoplay playsinline muted></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+  </div>
+  <button id="startBtn">Start / Next</button>
+  <p id="status"></p>
+  <script>
+const socket = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.hostname + ':8000/ws');
+
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+const startBtn = document.getElementById('startBtn');
+const status = document.getElementById('status');
+
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+let localStream;
+let pc;
+let partnerId;
+let partnerIsMobile = false;
+
+async function initMedia() {
+  const constraints = {
+    audio: true,
+    video: isMobile
+      ? { facingMode: 'user', width: { ideal: 320 }, height: { ideal: 240 } }
+      : true
+  };
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    localVideo.srcObject = localStream;
+  } catch (err) {
+    console.error('Media error:', err);
+    status.textContent = 'Could not access camera/mic.';
+  }
+}
+
+initMedia();
+
+socket.addEventListener('open', () => {
+  console.log('WebSocket connected');
+});
+
+socket.addEventListener('message', async event => {
+  const msg = JSON.parse(event.data);
+  if (msg.type === 'match') {
+    partnerId = msg.id;
+    partnerIsMobile = Boolean(msg.partnerMobile);
+    status.textContent = 'Partner found! Connecting...';
+    startConnection(msg.initiator, partnerIsMobile);
+  } else if (msg.type === 'signal') {
+    if (msg.from !== partnerId) return;
+    const data = msg.data;
+    if (data.description) {
+      await pc.setRemoteDescription(data.description);
+      if (data.description.type === 'offer') {
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.send(JSON.stringify({ type: 'signal', to: partnerId, data: { description: pc.localDescription } }));
+      }
+    } else if (data.candidate) {
+      try { await pc.addIceCandidate(data.candidate); } catch (e) { console.error(e); }
+    }
+  } else if (msg.type === 'partner-left') {
+    status.textContent = 'Partner disconnected.';
+    cleanup();
+  }
+});
+
+startBtn.onclick = () => {
+  socket.send(JSON.stringify({ type: 'leave' }));
+  cleanup();
+  socket.send(JSON.stringify({ type: 'join', mobile: isMobile }));
+  status.textContent = 'Looking for a partner...';
+};
+
+function startConnection(initiator, partnerMobile) {
+  pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      {
+        urls: [
+          'turn:openrelay.metered.ca:80',
+          'turn:openrelay.metered.ca:443',
+          'turn:openrelay.metered.ca:443?transport=tcp'
+        ],
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
+    ]
+  });
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+  pc.getSenders().forEach(sender => {
+    if (sender.track && sender.track.kind === 'video') {
+      const params = sender.getParameters();
+      if (!params.encodings) params.encodings = [{}];
+      params.encodings[0].maxBitrate = partnerMobile ? 300000 : 800000;
+      sender.setParameters(params).catch(e => console.error('Failed to set bitrate', e));
+    }
+  });
+
+  pc.onicecandidate = ({ candidate }) => {
+    if (candidate) socket.send(JSON.stringify({ type: 'signal', to: partnerId, data: { candidate } }));
+  };
+  pc.ontrack = ({ streams: [stream] }) => {
+    remoteVideo.srcObject = stream;
+  };
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') status.textContent = 'Connected!';
+  };
+
+  if (initiator) {
+    pc.createOffer().then(o => pc.setLocalDescription(o)).then(() => {
+      socket.send(JSON.stringify({ type: 'signal', to: partnerId, data: { description: pc.localDescription } }));
+    });
+  }
+}
+
+function cleanup() {
+  if (pc) {
+    pc.close();
+    pc = null;
+  }
+  remoteVideo.srcObject = null;
+  partnerId = null;
+}
+  </script>
+</body>
+</html>
