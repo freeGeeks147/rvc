@@ -38,20 +38,33 @@ startBtn.onclick = () => {
 
 function startConnection(initiator, partnerMobile) {
   pc = new RTCPeerConnection({
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      // Public TURN for demo use only; replace with your own in production
+  iceServers: [
       {
-        urls: [
-          'turn:openrelay.metered.ca:80',
-          'turn:openrelay.metered.ca:443',
-          'turn:openrelay.metered.ca:443?transport=tcp'
-        ],
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      }
-    ]
-  });
+        urls: "stun:stun.relay.metered.ca:80",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:80",
+        username: "d458b83fc1fb121638d2e931",
+        credential: "Cp+XW22EpTwKDn4w",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:80?transport=tcp",
+        username: "d458b83fc1fb121638d2e931",
+        credential: "Cp+XW22EpTwKDn4w",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:443",
+        username: "d458b83fc1fb121638d2e931",
+        credential: "Cp+XW22EpTwKDn4w",
+      },
+      {
+        urls: "turns:global.relay.metered.ca:443?transport=tcp",
+        username: "d458b83fc1fb121638d2e931",
+        credential: "Cp+XW22EpTwKDn4w",
+      },
+  ],
+});
+  
   localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
   pc.getSenders().forEach(sender => {
