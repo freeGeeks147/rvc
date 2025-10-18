@@ -1,7 +1,7 @@
 {
-  "name": "random-video-chat",
+  "name": "ahmedabad-cwg-2030-bid",
   "version": "1.0.0",
-  "description": "A simple Express + Socket.io boilerplate for 1:1 video chat",
+  "description": "Official website for Ahmedabad's bid to host the 2030 Commonwealth Games",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

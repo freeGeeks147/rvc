@@ -1,24 +1,833 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Random Video Chat</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; }
-    video { width: 45%; max-width: 300px; background: #000; margin: 5px; }
-    #videos { display: flex; justify-content: center; flex-wrap: wrap; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahmedabad 2030 - Commonwealth Games Bid</title>
+    <meta name="description" content="Official website for Ahmedabad's bid to host the 2030 Commonwealth Games. Join us in bringing the Games to India's vibrant cultural capital.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1e40af;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: #1e40af;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero .description {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #1e40af;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #1e40af;
+        }
+
+        /* About Section */
+        .section {
+            padding: 5rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: #1e40af;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text h3 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #1e40af;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+            background: #f8fafc;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Sports Section */
+        .sports {
+            background: #f8fafc;
+        }
+
+        .sports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .sport-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .sport-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .sport-icon {
+            font-size: 3rem;
+            color: #1e40af;
+            margin-bottom: 1rem;
+        }
+
+        .sport-card h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #1e40af;
+        }
+
+        /* Venues Section */
+        .venues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .venue-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .venue-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .venue-image {
+            height: 200px;
+            background: linear-gradient(45deg, #1e40af, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .venue-content {
+            padding: 2rem;
+        }
+
+        .venue-content h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #1e40af;
+        }
+
+        .venue-content p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .venue-capacity {
+            background: #1e40af;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Legacy Section */
+        .legacy {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        .legacy-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .legacy-item {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .legacy-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .legacy-item h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Support Section */
+        .support {
+            background: #f8fafc;
+            text-align: center;
+        }
+
+        .support-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .support h3 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #1e40af;
+        }
+
+        .support p {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            color: #666;
+        }
+
+        .support-form {
+            display: flex;
+            gap: 1rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .support-form input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .support-form input:focus {
+            border-color: #1e40af;
+        }
+
+        .support-form button {
+            padding: 1rem 2rem;
+            background: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .support-form button:hover {
+            background: #1d4ed8;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 3rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #60a5fa;
+        }
+
+        .footer-section p, .footer-section a {
+            color: #cbd5e1;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+            color: #9ca3af;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero .description {
+                font-size: 1rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .support-form {
+                flex-direction: column;
+            }
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Random Video Chat</h1>
-  <div id="videos">
-    <video id="localVideo" autoplay playsinline muted></video>
-    <video id="remoteVideo" autoplay playsinline></video>
-  </div>
-  <button id="startBtn">Start / Next</button>
-  <p id="status"></p>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="#" class="logo">Ahmedabad 2030</a>
+            <ul class="nav-menu">
+                <li><a href="#about">About</a></li>
+                <li><a href="#sports">Sports</a></li>
+                <li><a href="#venues">Venues</a></li>
+                <li><a href="#legacy">Legacy</a></li>
+                <li><a href="#support">Support</a></li>
+            </ul>
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="client.js"></script>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Ahmedabad 2030</h1>
+            <p class="subtitle">Commonwealth Games Bid</p>
+            <p class="description">Join us in bringing the Commonwealth Games to India's vibrant cultural capital, where tradition meets innovation and sports unite nations.</p>
+            <div class="cta-buttons">
+                <a href="#support" class="btn btn-primary">Support Our Bid</a>
+                <a href="#about" class="btn btn-secondary">Learn More</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">Why Ahmedabad?</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>India's Sports Capital</h3>
+                    <p>Ahmedabad stands as a testament to India's sporting excellence and cultural diversity. With world-class infrastructure, passionate sports fans, and a rich heritage, we are ready to host the most memorable Commonwealth Games in history.</p>
+                    <p>Our city combines ancient wisdom with modern innovation, creating the perfect backdrop for athletes from across the Commonwealth to compete, connect, and celebrate the spirit of sportsmanship.</p>
+                    <p>From the iconic Sabarmati Riverfront to our state-of-the-art sports facilities, Ahmedabad offers an unparalleled experience that will leave lasting memories for athletes, officials, and spectators alike.</p>
+                </div>
+                <div class="about-image">
+                    <div style="height: 400px; background: linear-gradient(45deg, #1e40af, #3b82f6); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 4rem;">
+                        <i class="fas fa-city"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">8.5M</div>
+                    <div class="stat-label">Population</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">15+</div>
+                    <div class="stat-label">World-Class Venues</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">72</div>
+                    <div class="stat-label">Commonwealth Nations</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sports Section -->
+    <section id="sports" class="section sports">
+        <div class="container">
+            <h2 class="section-title">Sports Program</h2>
+            <div class="sports-grid">
+                <div class="sport-card">
+                    <div class="sport-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <h4>Athletics</h4>
+                    <p>Track and field events showcasing speed, strength, and endurance</p>
+                </div>
+                <div class="sport-card">
+                    <div class="sport-icon">
+                        <i class="fas fa-swimmer"></i>
+                    </div>
+                    <h4>Swimming</h4>
+                    <p>Aquatic excellence in our world-class swimming facilities</p>
+                </div>
+                <div class="sport-card">
+                    <div class="sport-icon">
+                        <i class="fas fa-basketball-ball"></i>
+                    </div>
+                    <h4>Basketball</h4>
+                    <p>Fast-paced team sport bringing nations together</p>
+                </div>
+                <div class="sport-card">
+                    <div class="sport-icon">
+                        <i class="fas fa-volleyball-ball"></i>
+                    </div>
+                    <h4>Volleyball</h4>
+                    <p>Dynamic indoor and beach volleyball competitions</p>
+                </div>
+                <div class="sport-card">
+                    <div class="sport-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h4>Weightlifting</h4>
+                    <p>Raw power and technique in weightlifting events</p>
+                </div>
+                <div class="sport-card">
+                    <div class="sport-icon">
+                        <i class="fas fa-table-tennis"></i>
+                    </div>
+                    <h4>Table Tennis</h4>
+                    <p>Precision and speed in table tennis competitions</p>
+                </div>
+                <div class="sport-card">
+                    <div class="sport-icon">
+                        <i class="fas fa-hockey-puck"></i>
+                    </div>
+                    <h4>Hockey</h4>
+                    <p>India's national sport in all its glory</p>
+                </div>
+                <div class="sport-card">
+                    <div class="sport-icon">
+                        <i class="fas fa-futbol"></i>
+                    </div>
+                    <h4>Football</h4>
+                    <p>The beautiful game bringing global excitement</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Venues Section -->
+    <section id="venues" class="section">
+        <div class="container">
+            <h2 class="section-title">World-Class Venues</h2>
+            <div class="venues-grid">
+                <div class="venue-card">
+                    <div class="venue-image">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <div class="venue-content">
+                        <h4>Narendra Modi Stadium</h4>
+                        <p>Opening and Closing Ceremonies, Athletics</p>
+                        <div class="venue-capacity">132,000 Capacity</div>
+                    </div>
+                </div>
+                <div class="venue-card">
+                    <div class="venue-image">
+                        <i class="fas fa-swimmer"></i>
+                    </div>
+                    <div class="venue-content">
+                        <h4>Sabarmati Aquatic Center</h4>
+                        <p>Swimming, Diving, Water Polo</p>
+                        <div class="venue-capacity">15,000 Capacity</div>
+                    </div>
+                </div>
+                <div class="venue-card">
+                    <div class="venue-image">
+                        <i class="fas fa-basketball-ball"></i>
+                    </div>
+                    <div class="venue-content">
+                        <h4>Gujarat Sports Complex</h4>
+                        <p>Basketball, Volleyball, Badminton</p>
+                        <div class="venue-capacity">8,000 Capacity</div>
+                    </div>
+                </div>
+                <div class="venue-card">
+                    <div class="venue-image">
+                        <i class="fas fa-hockey-puck"></i>
+                    </div>
+                    <div class="venue-content">
+                        <h4>Hockey Stadium</h4>
+                        <p>Field Hockey, Indoor Sports</p>
+                        <div class="venue-capacity">20,000 Capacity</div>
+                    </div>
+                </div>
+                <div class="venue-card">
+                    <div class="venue-image">
+                        <i class="fas fa-futbol"></i>
+                    </div>
+                    <div class="venue-content">
+                        <h4>Football Arena</h4>
+                        <p>Football, Rugby Sevens</p>
+                        <div class="venue-capacity">25,000 Capacity</div>
+                    </div>
+                </div>
+                <div class="venue-card">
+                    <div class="venue-image">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <div class="venue-content">
+                        <h4>Weightlifting Center</h4>
+                        <p>Weightlifting, Powerlifting</p>
+                        <div class="venue-capacity">5,000 Capacity</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Legacy Section -->
+    <section id="legacy" class="section legacy">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Our Legacy</h2>
+            <div class="legacy-content">
+                <div class="legacy-item">
+                    <div class="legacy-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4>Community Impact</h4>
+                    <p>Creating lasting benefits for local communities through sports development and infrastructure improvements.</p>
+                </div>
+                <div class="legacy-item">
+                    <div class="legacy-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h4>Sustainability</h4>
+                    <p>Green initiatives and eco-friendly practices that will benefit the environment for generations to come.</p>
+                </div>
+                <div class="legacy-item">
+                    <div class="legacy-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4>Youth Development</h4>
+                    <p>Inspiring the next generation of athletes and promoting healthy lifestyles across the Commonwealth.</p>
+                </div>
+                <div class="legacy-item">
+                    <div class="legacy-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h4>Cultural Exchange</h4>
+                    <p>Fostering understanding and friendship between nations through the universal language of sport.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section id="support" class="section support">
+        <div class="container">
+            <div class="support-content">
+                <h3>Support Ahmedabad 2030</h3>
+                <p>Join millions of supporters worldwide in bringing the Commonwealth Games to Ahmedabad. Your voice matters in making this historic event a reality.</p>
+                <form class="support-form">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit">Show Support</button>
+                </form>
+                <p style="margin-top: 2rem; font-size: 1rem; color: #666;">
+                    <i class="fas fa-users"></i> <strong>2.5M+</strong> supporters and counting
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Ahmedabad 2030</h4>
+                    <p>Bringing the Commonwealth Games to India's cultural capital. Together, we can create history.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="#about">About the Bid</a>
+                    <a href="#sports">Sports Program</a>
+                    <a href="#venues">Venues</a>
+                    <a href="#legacy">Legacy</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+                    <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
+                    <a href="#"><i class="fab fa-youtube"></i> YouTube</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Ahmedabad Commonwealth Games Bid Committee</p>
+                    <p>Gujarat, India</p>
+                    <p>Email: info@ahmedabad2030.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Ahmedabad 2030 Commonwealth Games Bid. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="client.js"></script>
 </body>
 </html>
