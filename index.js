@@ -122,7 +122,7 @@ setInterval(() => {
   io.emit('stats-update', stats);
 }, 30000);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`🏆 Ahmedabad 2030 CWG Bid Website running on port ${PORT}`);
   console.log(`🌐 Visit: http://localhost:${PORT}`);
